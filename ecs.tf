@@ -1,7 +1,7 @@
 ############CREATING A ECS CLUSTER#############
 
 resource "aws_ecs_cluster" "cluster" {
-  name = "cluster"
+  name = "ecs-cluster"
   setting {
     name  = "containerInsights"
     value = "enabled"
@@ -10,15 +10,13 @@ resource "aws_ecs_cluster" "cluster" {
 
 resource "aws_ecs_task_definition" "task" {
   family                   = "service"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE", "EC2"]
   cpu                      = 512
   memory                   = 2048
   container_definitions    = <<DEFINITION
   [
     {
-      "name"      : "nginx",
-      "image"     : "nginx:1.23.1",
+      "name"      : "busybox",
+      "image"     : "543512271426.dkr.ecr.us-east-1.amazonaws.com/busybox:latest",
       "cpu"       : 512,
       "memory"    : 2048,
       "essential" : true,
@@ -34,19 +32,54 @@ resource "aws_ecs_task_definition" "task" {
 }
 
 resource "aws_ecs_service" "service" {
-  name             = "service"
+  name             = "ecs-service"
   cluster          = aws_ecs_cluster.cluster.id
   task_definition  = aws_ecs_task_definition.task.id
-  desired_count    = 1
-  launch_type      = "FARGATE"
-  platform_version = "LATEST"
+  desired_count    = 2
+}
 
-  network_configuration {
-    assign_public_ip = true
-    security_groups  = [data.aws_security_groups.ecs-sg.id]
-    subnets          = [data.aws_subnet.ecs-subnet.id]
+
+resource "aws_launch_template" "ecs-template" {
+  name_prefix          = "ecs-template"
+  image_id      = "ami-0507dff4275d8dd6d"
+  instance_type = "t2.micro"
+}
+
+resource "aws_autoscaling_group" "ecs_asg" {
+    name                      = "ecs-asg"
+    availability_zones        = ["us-east-1a"]
+    desired_capacity          = 2
+    min_size                  = 1
+    max_size                  = 10
+    launch_template {
+         id = aws_launch_template.ecs-template.id
+         version = "$Latest"
+      }
+}
+
+data "aws_iam_policy_document" "ecs_agent" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
   }
-  lifecycle {
-    ignore_changes = [task_definition]
-  }
+}
+
+resource "aws_iam_role" "ecs_agent" {
+  name               = "ecs-agent"
+  assume_role_policy = data.aws_iam_policy_document.ecs_agent.json
+}
+
+
+resource "aws_iam_role_policy_attachment" "ecs_agent" {
+  role       = "aws_iam_role.ecs_agent.name"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+
+resource "aws_iam_instance_profile" "ecs_agent" {
+  name = "ecs-agent"
+  role = aws_iam_role.ecs_agent.name
 }
