@@ -1,0 +1,7 @@
+resource "aws_key_pair" "key" {
+  key_name   = "blog"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC4WWa7wLZD7FX9kf2xSNAn4dhOAxSN/QsRLdE6zwzPWWS4uxaOaU+hDxf/UkaQaAjpcdmZGG9ykATxTZzUuSceSc8fqDn30Dpj3f3eVFoqEbJ1JARqcAAd/Jemf6DPlN5ee5HnQmLjJs1QvOAXiF5mm7pmf/bmZ0JRa8+E0MnglJ6KMGDMj+C6JT+1haMqhENXnGrGkaOZYulD2G/vZFVgbNhcxaIgkX4LoeUijXDIOy7L5W6RuL5OI54UixwBRdA10Lpn2IRXp5tD1RAXXoPJDAsyOTMD8l3L4jTvpp9VYs7J3qBomsj2fZ/sixtSGHKFdxE59lywJX7UqH0bM+Qnji70PXxiQ3k8/JsOMiCLEzTjiota94iGw1GWrG1F1bm8vLOakcI5cBWJQANQQyU+jliSrNREl8g73VvVleq1bYcXRvW0FaySZGsust6Ek/geAetbFQXthFJxFvM29kkHqjZ+cFmBwyxZVLoPC3hsJzZYxq5nFm9uZb9M9q+Out76rzYK9J279yQJXHNaBQaj4Epu9MZqPjrNJoyXmnJqik0bigPWECPI6IdqQYQJ8QYv+a9FpPulpOqnoFD7AAWe5dj+2k9jN87i1b5pzGtwROvdMWb14LOB45MgBo0GUsjvakMQTKmOegXDxi4FrP2g9BlSHF90vrw4b1tiAt5fDQ== contact@blog.com"
+  tags = {
+    "Name" = "contact@blog.com"
+  }
+}
