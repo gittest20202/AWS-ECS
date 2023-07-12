@@ -11,7 +11,9 @@ resource "aws_alb_listener" "alblsnr" {
 resource "aws_autoscaling_group" "autoscal" {
   desired_capacity     = 1
   health_check_type    = "EC2"
-  launch_configuration = aws_launch_configuration.ecslnchcfg.name
+  launch_template {
+       name = aws_launch_template.ecslnctmpt.name
+  } 
   max_size             = 2
   min_size             = 1
   name                 = "auto-scaling-group"
